@@ -41,17 +41,11 @@
     padding-top: var(--safe-top);
     padding-bottom: var(--safe-bottom);
   }
-
-  /* ===== SCREENS ===== */
   .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
   .screen.active { display: flex; }
-
-  /* ===== HEADER ===== */
   .header {
     padding: 16px 20px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
   }
   .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
@@ -60,106 +54,93 @@
   .back-btn {
     display: flex; align-items: center; gap: 6px;
     background: none; border: none; color: var(--text2);
-    font-size: 15px; cursor: pointer; padding: 4px 0;
-    font-family: inherit;
+    font-size: 15px; cursor: pointer; padding: 4px 0; font-family: inherit;
   }
   .back-btn::before { content: '‹'; font-size: 22px; line-height: 1; color: var(--accent); }
-
-  /* ===== SCROLL CONTENT ===== */
   .scroll-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 16px 16px;
+    flex: 1; overflow-y: auto;
+    padding: 0 16px 100px;
     -webkit-overflow-scrolling: touch;
   }
-
-  /* ===== CALENDAR ===== */
   .calendar-wrap {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 20px; border: 1px solid var(--border);
   }
   .cal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
   }
   .cal-month { font-size: 17px; font-weight: 600; }
   .cal-nav { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 4px 8px; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
-  .cal-dow {
-    text-align: center; font-size: 11px; color: var(--text3);
-    font-weight: 600; padding: 4px 0; letter-spacing: 0.5px;
-  }
+  .cal-dow { text-align: center; font-size: 11px; color: var(--text3); font-weight: 600; padding: 4px 0; letter-spacing: 0.5px; }
   .cal-day {
     aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; font-size: 13px; font-weight: 500; cursor: default;
-    position: relative; color: var(--text2);
+    border-radius: 50%; font-size: 13px; font-weight: 500;
+    position: relative; color: var(--text2); cursor: pointer;
+    transition: background 0.15s;
   }
-  .cal-day.today {
-    background: var(--accent2); color: var(--text);
-    font-weight: 700;
-  }
+  .cal-day:active { opacity: 0.7; }
+  .cal-day.today { background: var(--accent2); color: var(--text); font-weight: 700; }
   .cal-day.done { background: var(--success); color: #0a2e22; font-weight: 700; }
   .cal-day.other-month { color: var(--text3); opacity: 0.4; }
-
-  /* ===== PROJECT LIST ===== */
+  .cal-day.has-data::after {
+    content: ''; position: absolute; bottom: 3px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .cal-day.done.has-data::after { background: #0a2e22; }
   .section-title {
     font-size: 13px; font-weight: 600; color: var(--text3);
     letter-spacing: 1px; text-transform: uppercase;
     margin-bottom: 10px; padding: 0 4px;
   }
   .project-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    transition: background 0.15s, transform 0.1s;
-    user-select: none;
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 10px; border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.15s, transform 0.1s; user-select: none;
   }
   .project-card:active { background: var(--surface2); transform: scale(0.98); }
   .project-info { flex: 1; min-width: 0; }
   .project-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .project-meta { font-size: 12px; color: var(--text2); }
   .project-chevron { color: var(--text3); font-size: 20px; margin-left: 8px; flex-shrink: 0; }
-  .progress-bar {
-    height: 3px; background: var(--border);
-    border-radius: 2px; margin-top: 8px; overflow: hidden;
-  }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--success); border-radius: 2px; transition: width 0.3s; }
-
-  /* ===== TASK LIST ===== */
+  .memo-wrap {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden;
+  }
+  .memo-label {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 10px 14px 0;
+  }
+  .memo-textarea {
+    width: 100%; min-height: 80px; max-height: 160px;
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 14px; line-height: 1.6;
+    font-family: inherit; resize: none;
+    padding: 8px 14px 12px;
+  }
+  .memo-textarea::placeholder { color: var(--text3); }
   .task-item {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 8px;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; gap: 14px;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-    user-select: none;
+    background: var(--surface); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+    transition: background 0.15s, transform 0.1s; user-select: none;
   }
   .task-item:active { transform: scale(0.98); }
   .task-item.checked { opacity: 0.6; }
   .task-check {
     width: 26px; height: 26px; border-radius: 50%;
-    border: 2px solid var(--text3);
-    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    border: 2px solid var(--text3); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
-  .task-item.checked .task-check {
-    background: var(--success); border-color: var(--success);
-  }
+  .task-item.checked .task-check { background: var(--success); border-color: var(--success); }
   .task-item.checked .task-check::after {
-    content: '';
-    width: 6px; height: 10px;
-    border: 2px solid #0a2e22;
-    border-top: none; border-left: none;
+    content: ''; width: 6px; height: 10px;
+    border: 2px solid #0a2e22; border-top: none; border-left: none;
     transform: rotate(45deg) translateY(-1px);
   }
   .task-text { font-size: 15px; line-height: 1.4; flex: 1; }
@@ -169,23 +150,16 @@
     font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0;
     font-family: inherit; line-height: 1;
   }
-
-  /* ===== FAB ===== */
   .fab {
-    position: fixed; bottom: calc(24px + var(--safe-bottom));
-    right: 24px;
+    position: fixed; bottom: calc(24px + var(--safe-bottom)); right: 24px;
     width: 58px; height: 58px; border-radius: 50%;
-    background: var(--accent);
-    border: none; cursor: pointer;
+    background: var(--accent); border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 24px rgba(233,69,96,0.45);
-    transition: transform 0.15s, box-shadow 0.15s;
-    z-index: 100;
+    transition: transform 0.15s, box-shadow 0.15s; z-index: 100;
   }
   .fab:active { transform: scale(0.92); box-shadow: 0 2px 12px rgba(233,69,96,0.3); }
   .fab-icon { font-size: 32px; line-height: 1; color: #fff; margin-top: -2px; }
-
-  /* ===== MODAL ===== */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.6); z-index: 200;
@@ -194,24 +168,19 @@
   }
   .modal-overlay.open { display: flex; }
   .modal {
-    background: var(--surface);
-    border-radius: 24px 24px 0 0;
+    background: var(--surface); border-radius: 24px 24px 0 0;
     padding: 20px 20px calc(20px + var(--safe-bottom));
     width: 100%; max-width: 500px;
     border-top: 1px solid var(--border);
     animation: slideUp 0.25s ease;
   }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-handle {
-    width: 36px; height: 4px; background: var(--text3);
-    border-radius: 2px; margin: 0 auto 16px;
-  }
+  .modal-handle { width: 36px; height: 4px; background: var(--text3); border-radius: 2px; margin: 0 auto 16px; }
   .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
   .modal input {
     width: 100%; padding: 14px 16px;
     background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 12px; color: var(--text);
-    font-size: 16px; font-family: inherit;
+    border-radius: 12px; color: var(--text); font-size: 16px; font-family: inherit;
     outline: none; margin-bottom: 14px;
   }
   .modal input:focus { border-color: var(--accent); }
@@ -219,44 +188,57 @@
   .btn-cancel {
     flex: 1; padding: 14px; border-radius: 12px;
     background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text2); font-size: 15px; font-weight: 600;
-    cursor: pointer; font-family: inherit;
+    color: var(--text2); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
   }
   .btn-add {
     flex: 1; padding: 14px; border-radius: 12px;
     background: var(--accent); border: none;
-    color: #fff; font-size: 15px; font-weight: 700;
-    cursor: pointer; font-family: inherit;
+    color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
   }
-
-  /* ===== EMPTY STATE ===== */
-  .empty {
-    text-align: center; padding: 40px 20px;
-    color: var(--text3); font-size: 14px; line-height: 1.8;
+  .day-modal {
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom));
+    width: 100%; max-width: 500px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.25s ease;
+    max-height: 80vh; overflow-y: auto;
   }
+  .day-modal-date { font-size: 14px; color: var(--text2); margin-bottom: 16px; }
+  .day-project-block { margin-bottom: 18px; }
+  .day-project-name {
+    font-size: 13px; font-weight: 700; color: var(--text3);
+    letter-spacing: 0.5px; margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .day-project-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .day-project-badge.done { background: rgba(78,204,163,0.15); color: var(--success); }
+  .day-project-badge.partial { background: rgba(233,69,96,0.12); color: var(--accent); }
+  .day-task-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .day-task-row:last-child { border-bottom: none; }
+  .day-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .day-check.on { background: var(--success); }
+  .day-check.on::after { content: ''; width: 4px; height: 7px; border: 2px solid #0a2e22; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+  .day-check.off { border: 2px solid var(--text3); }
+  .day-empty { text-align: center; padding: 24px 0; color: var(--text3); font-size: 14px; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; line-height: 1.8; }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
-
-  /* ===== PROJECT HEADER ===== */
-  .project-header-wrap {
-    padding: 0 20px 16px;
-    flex-shrink: 0;
-  }
-  .project-header-name {
-    font-size: 24px; font-weight: 700; margin-bottom: 4px;
-  }
+  .project-header-wrap { padding: 0 20px 16px; flex-shrink: 0; }
+  .project-header-name { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
   .all-done-banner {
     background: linear-gradient(135deg, #4ecca3, #38b28e);
-    border-radius: 12px; padding: 12px 16px;
-    text-align: center; font-size: 14px; font-weight: 700;
-    color: #0a2e22; margin-bottom: 16px; display: none;
+    border-radius: 12px; padding: 12px 16px; text-align: center;
+    font-size: 14px; font-weight: 700; color: #0a2e22;
+    margin: 0 16px 16px; display: none;
   }
   .all-done-banner.show { display: block; }
 </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- HOME SCREEN -->
   <div class="screen active" id="screen-home">
     <div class="header">
       <div>
@@ -280,8 +262,6 @@
       <span class="fab-icon">+</span>
     </button>
   </div>
-
-  <!-- PROJECT SCREEN -->
   <div class="screen" id="screen-project">
     <div class="header">
       <button class="back-btn" id="back-btn">プロジェクト</button>
@@ -292,16 +272,19 @@
     </div>
     <div class="all-done-banner" id="all-done-banner">🎉 本日のタスクをすべて完了！</div>
     <div class="scroll-content">
+      <div class="memo-wrap">
+        <div class="memo-label">メモ</div>
+        <textarea class="memo-textarea" id="memo-textarea" placeholder="このプロジェクトのメモを入力..."></textarea>
+      </div>
+      <div class="section-title">タスク</div>
       <div id="task-list"></div>
     </div>
     <button class="fab" id="fab-add-task" aria-label="タスクを追加">
       <span class="fab-icon">+</span>
     </button>
   </div>
-
 </div>
 
-<!-- ADD PROJECT MODAL -->
 <div class="modal-overlay" id="modal-project">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -314,7 +297,6 @@
   </div>
 </div>
 
-<!-- ADD TASK MODAL -->
 <div class="modal-overlay" id="modal-task">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -327,48 +309,63 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-day">
+  <div class="day-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="day-modal-title"></div>
+    <div class="day-modal-date" id="day-modal-date"></div>
+    <div id="day-modal-content"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" id="close-day-modal" style="flex:none;width:100%;">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ===== STATE =====
 let state = {
-  projects: [],      // [{id, name}]
-  tasks: {},         // {projectId: [{id, text}]}
-  checks: {},        // {"YYYY-MM-DD": {projectId: {taskId: bool}}}
-  doneDays: [],      // ["YYYY-MM-DD"] all tasks done
+  projects: [],
+  tasks: {},
+  checks: {},
+  memos: {},
+  doneDays: [],
   calViewYear: 0,
   calViewMonth: 0,
 };
 let currentProjectId = null;
 
-// ===== UTILS =====
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 function genId() { return Math.random().toString(36).slice(2,10); }
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-// ===== STORAGE =====
-function save() { localStorage.setItem('taskflow_v2', JSON.stringify(state)); }
+function save() { localStorage.setItem('taskflow_v3', JSON.stringify(state)); }
 function load() {
-  const raw = localStorage.getItem('taskflow_v2');
+  const raw = localStorage.getItem('taskflow_v3');
+  const rawV2 = localStorage.getItem('taskflow_v2');
   if (raw) {
     try { Object.assign(state, JSON.parse(raw)); } catch(e) {}
+  } else if (rawV2) {
+    try { Object.assign(state, JSON.parse(rawV2)); } catch(e) {}
   }
   if (!state.calViewYear) {
     const d = new Date();
     state.calViewYear = d.getFullYear();
     state.calViewMonth = d.getMonth();
   }
-  // Ensure arrays/objects
   if (!Array.isArray(state.projects)) state.projects = [];
   if (!state.tasks) state.tasks = {};
   if (!state.checks) state.checks = {};
+  if (!state.memos) state.memos = {};
   if (!Array.isArray(state.doneDays)) state.doneDays = [];
 }
 
-// ===== CHECK LOGIC =====
-function getCheck(projectId, taskId) {
-  const today = todayStr();
-  return state.checks[today]?.[projectId]?.[taskId] ?? false;
+function getCheck(projectId, taskId, dateStr) {
+  const d = dateStr || todayStr();
+  return state.checks[d]?.[projectId]?.[taskId] ?? false;
 }
 function setCheck(projectId, taskId, val) {
   const today = todayStr();
@@ -378,30 +375,30 @@ function setCheck(projectId, taskId, val) {
   updateDoneDay();
   save();
 }
-function isProjectAllDone(projectId) {
+function isProjectAllDone(projectId, dateStr) {
   const tasks = state.tasks[projectId] || [];
   if (tasks.length === 0) return false;
-  return tasks.every(t => getCheck(projectId, t.id));
+  return tasks.every(t => getCheck(projectId, t.id, dateStr));
 }
 function updateDoneDay() {
   const today = todayStr();
-  // A day is "done" if at least one project exists and ALL projects with tasks are done
   const projectsWithTasks = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
-  if (projectsWithTasks.length > 0 && projectsWithTasks.every(p => isProjectAllDone(p.id))) {
+  if (projectsWithTasks.length > 0 && projectsWithTasks.every(p => isProjectAllDone(p.id, today))) {
     if (!state.doneDays.includes(today)) state.doneDays.push(today);
   } else {
     state.doneDays = state.doneDays.filter(d => d !== today);
   }
 }
 
-// ===== CALENDAR =====
 const DOW = ['日','月','火','水','木','金','土'];
+function hasAnyDataOnDay(ds) {
+  return state.checks[ds] && Object.keys(state.checks[ds]).length > 0;
+}
 function renderCalendar() {
   const { calViewYear: y, calViewMonth: m } = state;
-  const today = new Date(); const todayS = todayStr();
+  const todayS = todayStr();
   const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   document.getElementById('cal-month-label').textContent = `${y}年 ${monthNames[m]}`;
-
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
   DOW.forEach(d => {
@@ -411,7 +408,6 @@ function renderCalendar() {
   const first = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m+1, 0).getDate();
   const prevDays = new Date(y, m, 0).getDate();
-  // prev month
   for (let i = first - 1; i >= 0; i--) {
     const el = document.createElement('div');
     el.className = 'cal-day other-month'; el.textContent = prevDays - i; grid.appendChild(el);
@@ -423,9 +419,10 @@ function renderCalendar() {
     el.textContent = d;
     if (ds === todayS) el.classList.add('today');
     if (state.doneDays.includes(ds)) { el.classList.add('done'); el.classList.remove('today'); }
+    if (hasAnyDataOnDay(ds)) el.classList.add('has-data');
+    el.addEventListener('click', () => openDayModal(ds, d, m, y));
     grid.appendChild(el);
   }
-  // next month fill
   const total = first + daysInMonth;
   const rem = (7 - total % 7) % 7;
   for (let d = 1; d <= rem; d++) {
@@ -434,15 +431,54 @@ function renderCalendar() {
   }
 }
 
-// ===== PROJECT LIST =====
+function openDayModal(ds, day, month, year) {
+  const weekdays = ['日','月','火','水','木','金','土'];
+  const dow = weekdays[new Date(year, month, day).getDay()];
+  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const isDone = state.doneDays.includes(ds);
+  document.getElementById('day-modal-title').textContent = `${year}年 ${monthNames[month]}${day}日（${dow}）`;
+  document.getElementById('day-modal-date').textContent = isDone ? '✅ この日は全タスク完了！' : '';
+  const content = document.getElementById('day-modal-content');
+  const projectsWithTasks = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
+  if (projectsWithTasks.length === 0) {
+    content.innerHTML = `<div class="day-empty">プロジェクトがまだありません</div>`;
+  } else {
+    content.innerHTML = '';
+    projectsWithTasks.forEach(p => {
+      const tasks = state.tasks[p.id] || [];
+      const doneCount = tasks.filter(t => getCheck(p.id, t.id, ds)).length;
+      const allDone = doneCount === tasks.length;
+      const block = document.createElement('div');
+      block.className = 'day-project-block';
+      const badge = allDone
+        ? `<span class="day-project-badge done">完了</span>`
+        : `<span class="day-project-badge partial">${doneCount}/${tasks.length}</span>`;
+      let rows = tasks.map(t => {
+        const checked = getCheck(p.id, t.id, ds);
+        return `<div class="day-task-row">
+          <div class="day-check ${checked ? 'on' : 'off'}"></div>
+          <span style="color:${checked ? 'var(--text2)' : 'var(--text)'}; ${checked ? 'text-decoration:line-through' : ''}">${escHtml(t.text)}</span>
+        </div>`;
+      }).join('');
+      block.innerHTML = `<div class="day-project-name">${escHtml(p.name)} ${badge}</div>${rows}`;
+      content.appendChild(block);
+    });
+  }
+  document.getElementById('modal-day').classList.add('open');
+}
+document.getElementById('close-day-modal').addEventListener('click', () => {
+  document.getElementById('modal-day').classList.remove('open');
+});
+document.getElementById('modal-day').addEventListener('click', e => {
+  if (e.target === e.currentTarget) document.getElementById('modal-day').classList.remove('open');
+});
+
 function renderProjects() {
   const list = document.getElementById('project-list');
-  const today = todayStr();
   const d = new Date();
   const weekdays = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
   document.getElementById('today-label').textContent =
     `${d.getMonth()+1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
-
   if (state.projects.length === 0) {
     list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>プロジェクトがありません<br>＋ボタンで追加してください</div>`;
     return;
@@ -466,7 +502,6 @@ function renderProjects() {
   });
 }
 
-// ===== TASK LIST =====
 function renderTasks() {
   const p = state.projects.find(x => x.id === currentProjectId);
   if (!p) return;
@@ -475,10 +510,10 @@ function renderTasks() {
   const done = tasks.filter(t => getCheck(currentProjectId, t.id)).length;
   document.getElementById('project-screen-meta').textContent =
     tasks.length ? `${done} / ${tasks.length} 完了` : 'タスクなし';
-
   const banner = document.getElementById('all-done-banner');
   banner.classList.toggle('show', tasks.length > 0 && done === tasks.length);
-
+  const memoEl = document.getElementById('memo-textarea');
+  memoEl.value = state.memos[currentProjectId] || '';
   const list = document.getElementById('task-list');
   if (tasks.length === 0) {
     list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>タスクがありません<br>＋ボタンで追加してください</div>`;
@@ -510,12 +545,17 @@ function renderTasks() {
   });
 }
 
+document.getElementById('memo-textarea').addEventListener('input', () => {
+  if (!currentProjectId) return;
+  state.memos[currentProjectId] = document.getElementById('memo-textarea').value;
+  save();
+});
+
 function deleteTask(taskId) {
   state.tasks[currentProjectId] = (state.tasks[currentProjectId]||[]).filter(t => t.id !== taskId);
   updateDoneDay(); save(); renderTasks(); renderCalendar(); renderProjects();
 }
 
-// ===== NAVIGATION =====
 function openProject(id) {
   currentProjectId = id;
   document.getElementById('screen-home').classList.remove('active');
@@ -528,7 +568,6 @@ document.getElementById('back-btn').addEventListener('click', () => {
   renderProjects(); renderCalendar();
 });
 
-// ===== MODAL HELPERS =====
 function openModal(id, inputId) {
   document.getElementById(id).classList.add('open');
   setTimeout(() => document.getElementById(inputId).focus(), 100);
@@ -538,7 +577,6 @@ function closeModal(id, inputId) {
   document.getElementById(inputId).value = '';
 }
 
-// ===== ADD PROJECT =====
 document.getElementById('fab-add-project').addEventListener('click', () => openModal('modal-project','input-project'));
 document.getElementById('cancel-project').addEventListener('click', () => closeModal('modal-project','input-project'));
 document.getElementById('modal-project').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-project','input-project'); });
@@ -554,7 +592,6 @@ function addProject() {
   renderProjects(); renderCalendar();
 }
 
-// ===== ADD TASK =====
 document.getElementById('fab-add-task').addEventListener('click', () => openModal('modal-task','input-task'));
 document.getElementById('cancel-task').addEventListener('click', () => closeModal('modal-task','input-task'));
 document.getElementById('modal-task').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-task','input-task'); });
@@ -569,7 +606,6 @@ function addTask() {
   renderTasks(); renderCalendar(); renderProjects();
 }
 
-// ===== CALENDAR NAV =====
 document.getElementById('cal-prev').addEventListener('click', () => {
   state.calViewMonth--;
   if (state.calViewMonth < 0) { state.calViewMonth = 11; state.calViewYear--; }
@@ -581,17 +617,10 @@ document.getElementById('cal-next').addEventListener('click', () => {
   save(); renderCalendar();
 });
 
-// ===== ESCAPE =====
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ===== INIT =====
 load();
 renderCalendar();
 renderProjects();
 
-// Service Worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
