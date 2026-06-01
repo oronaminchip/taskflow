@@ -12,229 +12,132 @@
 <title>TaskFlow</title>
 <style>
   :root {
-    --bg: #0f0f1a;
-    --surface: #1a1a2e;
-    --surface2: #16213e;
-    --accent: #e94560;
-    --accent2: #0f3460;
-    --text: #eaeaea;
-    --text2: #8892a4;
-    --text3: #5a6478;
-    --success: #4ecca3;
-    --border: rgba(255,255,255,0.08);
+    --bg: #0f0f1a; --surface: #1a1a2e; --surface2: #16213e;
+    --accent: #e94560; --accent2: #0f3460;
+    --text: #eaeaea; --text2: #8892a4; --text3: #5a6478;
+    --success: #4ecca3; --border: rgba(255,255,255,0.08);
     --radius: 16px;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    height: 100%; overflow: hidden;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
-    font-size: 16px;
-  }
-  #app {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding-top: var(--safe-top);
-    padding-bottom: var(--safe-bottom);
-  }
+  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; font-size: 16px; }
+  #app { height: 100%; display: flex; flex-direction: column; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
   .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
   .screen.active { display: flex; }
-  .header {
-    padding: 16px 20px 12px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0;
-  }
+  .header { padding: 16px 20px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
   .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   .header-title span { color: var(--accent); }
   .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
-  .back-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: none; border: none; color: var(--text2);
-    font-size: 15px; cursor: pointer; padding: 4px 0; font-family: inherit;
-  }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .icon-btn { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; padding: 6px; border-radius: 50%; transition: background 0.15s; }
+  .icon-btn:active { background: var(--surface2); }
+  .back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text2); font-size: 15px; cursor: pointer; padding: 4px 0; font-family: inherit; }
   .back-btn::before { content: '‹'; font-size: 22px; line-height: 1; color: var(--accent); }
-  .scroll-content {
-    flex: 1; overflow-y: auto;
-    padding: 0 16px 100px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .calendar-wrap {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 16px; margin-bottom: 20px; border: 1px solid var(--border);
-  }
-  .cal-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-  }
+  .scroll-content { flex: 1; overflow-y: auto; padding: 0 16px 100px; -webkit-overflow-scrolling: touch; }
+  .calendar-wrap { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .cal-month { font-size: 17px; font-weight: 600; }
   .cal-nav { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 4px 8px; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
   .cal-dow { text-align: center; font-size: 11px; color: var(--text3); font-weight: 600; padding: 4px 0; letter-spacing: 0.5px; }
-  .cal-day {
-    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; font-size: 13px; font-weight: 500;
-    position: relative; color: var(--text2); cursor: pointer;
-    transition: background 0.15s;
-  }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px; font-weight: 500; position: relative; color: var(--text2); cursor: pointer; transition: background 0.15s; }
   .cal-day:active { opacity: 0.7; }
   .cal-day.today { background: var(--accent2); color: var(--text); font-weight: 700; }
   .cal-day.done { background: var(--success); color: #0a2e22; font-weight: 700; }
   .cal-day.other-month { color: var(--text3); opacity: 0.4; }
-  .cal-day.has-data::after {
-    content: ''; position: absolute; bottom: 3px;
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--accent);
-  }
+  .cal-day.has-data::after { content: ''; position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
   .cal-day.done.has-data::after { background: #0a2e22; }
-  .section-title {
-    font-size: 13px; font-weight: 600; color: var(--text3);
-    letter-spacing: 1px; text-transform: uppercase;
-    margin-bottom: 10px; padding: 0 4px;
-  }
-  .project-card {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 16px 18px; margin-bottom: 10px; border: 1px solid var(--border);
-    cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-    transition: background 0.15s, transform 0.1s; user-select: none;
-  }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; padding: 0 4px; }
+  .project-card { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s, transform 0.1s; user-select: none; }
   .project-card:active { background: var(--surface2); transform: scale(0.98); }
   .project-info { flex: 1; min-width: 0; }
   .project-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .project-meta { font-size: 12px; color: var(--text2); }
-  .project-chevron { color: var(--text3); font-size: 20px; margin-left: 8px; flex-shrink: 0; }
+  .project-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .project-action-btn { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 6px; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+  .project-action-btn:active { background: var(--surface2); }
+  .project-action-btn.delete:active { color: var(--accent); }
+  .project-chevron { color: var(--text3); font-size: 20px; }
   .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--success); border-radius: 2px; transition: width 0.3s; }
-  .memo-wrap {
-    background: var(--surface); border-radius: var(--radius);
-    border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden;
-  }
-  .memo-label {
-    font-size: 11px; font-weight: 600; color: var(--text3);
-    letter-spacing: 1px; text-transform: uppercase;
-    padding: 10px 14px 0;
-  }
-  .memo-textarea {
-    width: 100%; min-height: 80px; max-height: 160px;
-    background: transparent; border: none; outline: none;
-    color: var(--text); font-size: 14px; line-height: 1.6;
-    font-family: inherit; resize: none;
-    padding: 8px 14px 12px;
-  }
+  .memo-wrap { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden; }
+  .memo-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px 0; }
+  .memo-textarea { width: 100%; min-height: 80px; max-height: 160px; background: transparent; border: none; outline: none; color: var(--text); font-size: 14px; line-height: 1.6; font-family: inherit; resize: none; padding: 8px 14px 12px; }
   .memo-textarea::placeholder { color: var(--text3); }
-  .task-item {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border);
-    display: flex; align-items: center; gap: 14px; cursor: pointer;
-    transition: background 0.15s, transform 0.1s; user-select: none;
-  }
+  .task-item { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: background 0.15s, transform 0.1s; user-select: none; }
   .task-item:active { transform: scale(0.98); }
   .task-item.checked { opacity: 0.6; }
-  .task-check {
-    width: 26px; height: 26px; border-radius: 50%;
-    border: 2px solid var(--text3); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
-  }
+  .task-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--text3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
   .task-item.checked .task-check { background: var(--success); border-color: var(--success); }
-  .task-item.checked .task-check::after {
-    content: ''; width: 6px; height: 10px;
-    border: 2px solid #0a2e22; border-top: none; border-left: none;
-    transform: rotate(45deg) translateY(-1px);
-  }
+  .task-item.checked .task-check::after { content: ''; width: 6px; height: 10px; border: 2px solid #0a2e22; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
   .task-text { font-size: 15px; line-height: 1.4; flex: 1; }
   .task-item.checked .task-text { text-decoration: line-through; color: var(--text2); }
-  .task-delete {
-    background: none; border: none; color: var(--text3);
-    font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0;
-    font-family: inherit; line-height: 1;
-  }
-  .fab {
-    position: fixed; bottom: calc(24px + var(--safe-bottom)); right: 24px;
-    width: 58px; height: 58px; border-radius: 50%;
-    background: var(--accent); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 24px rgba(233,69,96,0.45);
-    transition: transform 0.15s, box-shadow 0.15s; z-index: 100;
-  }
+  .task-repeat-badge { font-size: 10px; background: rgba(78,204,163,0.15); color: var(--success); padding: 2px 6px; border-radius: 6px; flex-shrink: 0; }
+  .task-delete { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0; font-family: inherit; line-height: 1; }
+  .fab { position: fixed; bottom: calc(24px + var(--safe-bottom)); right: 24px; width: 58px; height: 58px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(233,69,96,0.45); transition: transform 0.15s, box-shadow 0.15s; z-index: 100; }
   .fab:active { transform: scale(0.92); box-shadow: 0 2px 12px rgba(233,69,96,0.3); }
   .fab-icon { font-size: 32px; line-height: 1; color: #fff; margin-top: -2px; }
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6); z-index: 200;
-    align-items: flex-end; justify-content: center;
-    backdrop-filter: blur(4px);
-  }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
   .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border-radius: 24px 24px 0 0;
-    padding: 20px 20px calc(20px + var(--safe-bottom));
-    width: 100%; max-width: 500px;
-    border-top: 1px solid var(--border);
-    animation: slideUp 0.25s ease;
-  }
+  .modal { background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px calc(20px + var(--safe-bottom)); width: 100%; max-width: 500px; border-top: 1px solid var(--border); animation: slideUp 0.25s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-handle { width: 36px; height: 4px; background: var(--text3); border-radius: 2px; margin: 0 auto 16px; }
   .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-  .modal input {
-    width: 100%; padding: 14px 16px;
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 12px; color: var(--text); font-size: 16px; font-family: inherit;
-    outline: none; margin-bottom: 14px;
-  }
+  .modal input { width: 100%; padding: 14px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; font-family: inherit; outline: none; margin-bottom: 14px; }
   .modal input:focus { border-color: var(--accent); }
   .modal-actions { display: flex; gap: 10px; }
-  .btn-cancel {
-    flex: 1; padding: 14px; border-radius: 12px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text2); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
-  }
-  .btn-add {
-    flex: 1; padding: 14px; border-radius: 12px;
-    background: var(--accent); border: none;
-    color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
-  }
-  .day-modal {
-    background: var(--surface); border-radius: 24px 24px 0 0;
-    padding: 20px 20px calc(20px + var(--safe-bottom));
-    width: 100%; max-width: 500px;
-    border-top: 1px solid var(--border);
-    animation: slideUp 0.25s ease;
-    max-height: 80vh; overflow-y: auto;
-  }
+  .btn-cancel { flex: 1; padding: 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-add { flex: 1; padding: 14px; border-radius: 12px; background: var(--accent); border: none; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; margin-bottom: 14px; }
+  .toggle-label { font-size: 15px; color: var(--text); }
+  .toggle { width: 48px; height: 28px; background: var(--surface2); border-radius: 14px; position: relative; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); }
+  .toggle.on { background: var(--success); border-color: var(--success); }
+  .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.2s; }
+  .toggle.on::after { transform: translateX(20px); }
+  .day-modal { background: var(--surface); border-radius: 24px 24px 0 0; padding: 20px 20px calc(20px + var(--safe-bottom)); width: 100%; max-width: 500px; border-top: 1px solid var(--border); animation: slideUp 0.25s ease; max-height: 80vh; overflow-y: auto; }
   .day-modal-date { font-size: 14px; color: var(--text2); margin-bottom: 16px; }
   .day-project-block { margin-bottom: 18px; }
-  .day-project-name {
-    font-size: 13px; font-weight: 700; color: var(--text3);
-    letter-spacing: 0.5px; margin-bottom: 8px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .day-project-name { font-size: 13px; font-weight: 700; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
   .day-project-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
   .day-project-badge.done { background: rgba(78,204,163,0.15); color: var(--success); }
   .day-project-badge.partial { background: rgba(233,69,96,0.12); color: var(--accent); }
-  .day-task-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0; border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
+  .day-task-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .day-task-row:last-child { border-bottom: none; }
   .day-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
   .day-check.on { background: var(--success); }
   .day-check.on::after { content: ''; width: 4px; height: 7px; border: 2px solid #0a2e22; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
   .day-check.off { border: 2px solid var(--text3); }
   .day-empty { text-align: center; padding: 24px 0; color: var(--text3); font-size: 14px; }
+  .stats-wrap { padding: 0 16px 100px; overflow-y: auto; flex: 1; }
+  .stats-period-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .period-tab { flex: 1; padding: 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
+  .period-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .stats-card { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+  .stats-card-title { font-size: 13px; color: var(--text3); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .stats-number { font-size: 36px; font-weight: 700; color: var(--success); }
+  .stats-number-label { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 80px; margin-top: 8px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-fill { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent2); transition: height 0.3s; min-height: 2px; }
+  .bar-fill.full { background: var(--success); }
+  .bar-label { font-size: 9px; color: var(--text3); }
+  .stats-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .stats-row:last-child { border-bottom: none; }
+  .stats-row-label { font-size: 14px; color: var(--text); }
+  .stats-row-val { font-size: 14px; font-weight: 600; color: var(--success); }
+  .sort-hint { font-size: 12px; color: var(--text3); padding: 0 4px 8px; }
+  .project-card.dragging { opacity: 0.5; transform: scale(0.97); }
+  .project-card.drag-over { border-color: var(--accent); }
   .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; line-height: 1.8; }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
   .project-header-wrap { padding: 0 20px 16px; flex-shrink: 0; }
   .project-header-name { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-  .all-done-banner {
-    background: linear-gradient(135deg, #4ecca3, #38b28e);
-    border-radius: 12px; padding: 12px 16px; text-align: center;
-    font-size: 14px; font-weight: 700; color: #0a2e22;
-    margin: 0 16px 16px; display: none;
-  }
+  .all-done-banner { background: linear-gradient(135deg, #4ecca3, #38b28e); border-radius: 12px; padding: 12px 16px; text-align: center; font-size: 14px; font-weight: 700; color: #0a2e22; margin: 0 16px 16px; display: none; }
   .all-done-banner.show { display: block; }
+  .confirm-dialog { background: var(--surface); border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + var(--safe-bottom)); width: 100%; max-width: 500px; border-top: 1px solid var(--border); animation: slideUp 0.25s ease; }
+  .confirm-msg { font-size: 16px; color: var(--text); margin-bottom: 20px; line-height: 1.5; }
+  .btn-danger { flex: 1; padding: 14px; border-radius: 12px; background: var(--accent); border: none; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
 </style>
 </head>
 <body>
@@ -244,6 +147,9 @@
       <div>
         <div class="header-title">Task<span>Flow</span></div>
         <div class="header-sub" id="today-label"></div>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" id="btn-stats" aria-label="統計">📊</button>
       </div>
     </div>
     <div class="scroll-content">
@@ -256,6 +162,7 @@
         <div class="cal-grid" id="cal-grid"></div>
       </div>
       <div class="section-title">プロジェクト</div>
+      <div class="sort-hint" id="sort-hint"></div>
       <div id="project-list"></div>
     </div>
     <button class="fab" id="fab-add-project" aria-label="プロジェクトを追加">
@@ -283,6 +190,18 @@
       <span class="fab-icon">+</span>
     </button>
   </div>
+  <div class="screen" id="screen-stats">
+    <div class="header">
+      <button class="back-btn" id="stats-back-btn">ホーム</button>
+    </div>
+    <div class="stats-wrap" id="stats-wrap">
+      <div class="stats-period-tabs">
+        <button class="period-tab active" data-period="week">週間</button>
+        <button class="period-tab" data-period="month">月間</button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="modal-project">
@@ -302,6 +221,10 @@
     <div class="modal-handle"></div>
     <div class="modal-title">新しいタスク</div>
     <input type="text" id="input-task" placeholder="タスク名を入力" maxlength="80">
+    <div class="toggle-row">
+      <span class="toggle-label">🔁 毎日繰り返す</span>
+      <div class="toggle" id="repeat-toggle"></div>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="cancel-task">キャンセル</button>
       <button class="btn-add" id="confirm-task">追加</button>
@@ -321,69 +244,69 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-confirm">
+  <div class="confirm-dialog">
+    <div class="modal-handle"></div>
+    <div class="modal-title">プロジェクトを削除</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancel-confirm">キャンセル</button>
+      <button class="btn-danger" id="ok-confirm">削除する</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let state = {
-  projects: [],
-  tasks: {},
-  checks: {},
-  memos: {},
-  doneDays: [],
-  calViewYear: 0,
-  calViewMonth: 0,
+  projects: [], tasks: {}, checks: {}, memos: {}, doneDays: [],
+  calViewYear: 0, calViewMonth: 0,
 };
 let currentProjectId = null;
+let repeatToggleOn = false;
+let pendingDeleteId = null;
+let statsPeriod = 'week';
+let dragSrcIdx = null;
 
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 function genId() { return Math.random().toString(36).slice(2,10); }
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function save() { localStorage.setItem('taskflow_v3', JSON.stringify(state)); }
+function save() { localStorage.setItem('taskflow_v4', JSON.stringify(state)); }
 function load() {
-  const raw = localStorage.getItem('taskflow_v3');
-  const rawV2 = localStorage.getItem('taskflow_v2');
-  if (raw) {
-    try { Object.assign(state, JSON.parse(raw)); } catch(e) {}
-  } else if (rawV2) {
-    try { Object.assign(state, JSON.parse(rawV2)); } catch(e) {}
-  }
-  if (!state.calViewYear) {
-    const d = new Date();
-    state.calViewYear = d.getFullYear();
-    state.calViewMonth = d.getMonth();
-  }
+  const raw = localStorage.getItem('taskflow_v4') || localStorage.getItem('taskflow_v3') || localStorage.getItem('taskflow_v2');
+  if (raw) { try { Object.assign(state, JSON.parse(raw)); } catch(e) {} }
+  if (!state.calViewYear) { const d = new Date(); state.calViewYear = d.getFullYear(); state.calViewMonth = d.getMonth(); }
   if (!Array.isArray(state.projects)) state.projects = [];
   if (!state.tasks) state.tasks = {};
   if (!state.checks) state.checks = {};
   if (!state.memos) state.memos = {};
   if (!Array.isArray(state.doneDays)) state.doneDays = [];
+  Object.values(state.tasks).forEach(arr => arr.forEach(t => { if (t.repeat === undefined) t.repeat = false; }));
 }
 
-function getCheck(projectId, taskId, dateStr) {
-  const d = dateStr || todayStr();
-  return state.checks[d]?.[projectId]?.[taskId] ?? false;
+function getCheck(pid, tid, ds) {
+  const d = ds || todayStr();
+  return state.checks[d]?.[pid]?.[tid] ?? false;
 }
-function setCheck(projectId, taskId, val) {
+function setCheck(pid, tid, val) {
   const today = todayStr();
   if (!state.checks[today]) state.checks[today] = {};
-  if (!state.checks[today][projectId]) state.checks[today][projectId] = {};
-  state.checks[today][projectId][taskId] = val;
-  updateDoneDay();
-  save();
+  if (!state.checks[today][pid]) state.checks[today][pid] = {};
+  state.checks[today][pid][tid] = val;
+  updateDoneDay(); save();
 }
-function isProjectAllDone(projectId, dateStr) {
-  const tasks = state.tasks[projectId] || [];
-  if (tasks.length === 0) return false;
-  return tasks.every(t => getCheck(projectId, t.id, dateStr));
+function isProjectAllDone(pid, ds) {
+  const tasks = state.tasks[pid] || [];
+  if (!tasks.length) return false;
+  return tasks.every(t => getCheck(pid, t.id, ds));
 }
 function updateDoneDay() {
   const today = todayStr();
-  const projectsWithTasks = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
-  if (projectsWithTasks.length > 0 && projectsWithTasks.every(p => isProjectAllDone(p.id, today))) {
+  const pw = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
+  if (pw.length > 0 && pw.every(p => isProjectAllDone(p.id, today))) {
     if (!state.doneDays.includes(today)) state.doneDays.push(today);
   } else {
     state.doneDays = state.doneDays.filter(d => d !== today);
@@ -391,116 +314,118 @@ function updateDoneDay() {
 }
 
 const DOW = ['日','月','火','水','木','金','土'];
-function hasAnyDataOnDay(ds) {
-  return state.checks[ds] && Object.keys(state.checks[ds]).length > 0;
-}
+const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
 function renderCalendar() {
   const { calViewYear: y, calViewMonth: m } = state;
   const todayS = todayStr();
-  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  document.getElementById('cal-month-label').textContent = `${y}年 ${monthNames[m]}`;
+  document.getElementById('cal-month-label').textContent = `${y}年 ${MONTHS[m]}`;
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
-  DOW.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el);
-  });
+  DOW.forEach(d => { const el = document.createElement('div'); el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el); });
   const first = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const dim = new Date(y, m+1, 0).getDate();
   const prevDays = new Date(y, m, 0).getDate();
-  for (let i = first - 1; i >= 0; i--) {
-    const el = document.createElement('div');
-    el.className = 'cal-day other-month'; el.textContent = prevDays - i; grid.appendChild(el);
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    const el = document.createElement('div');
+  for (let i = first-1; i >= 0; i--) { const el = document.createElement('div'); el.className = 'cal-day other-month'; el.textContent = prevDays-i; grid.appendChild(el); }
+  for (let d = 1; d <= dim; d++) {
     const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    el.className = 'cal-day';
-    el.textContent = d;
+    const el = document.createElement('div'); el.className = 'cal-day'; el.textContent = d;
     if (ds === todayS) el.classList.add('today');
     if (state.doneDays.includes(ds)) { el.classList.add('done'); el.classList.remove('today'); }
-    if (hasAnyDataOnDay(ds)) el.classList.add('has-data');
+    if (state.checks[ds] && Object.keys(state.checks[ds]).length > 0) el.classList.add('has-data');
     el.addEventListener('click', () => openDayModal(ds, d, m, y));
     grid.appendChild(el);
   }
-  const total = first + daysInMonth;
-  const rem = (7 - total % 7) % 7;
-  for (let d = 1; d <= rem; d++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day other-month'; el.textContent = d; grid.appendChild(el);
-  }
+  const rem = (7 - (first+dim)%7) % 7;
+  for (let d = 1; d <= rem; d++) { const el = document.createElement('div'); el.className = 'cal-day other-month'; el.textContent = d; grid.appendChild(el); }
 }
 
 function openDayModal(ds, day, month, year) {
-  const weekdays = ['日','月','火','水','木','金','土'];
-  const dow = weekdays[new Date(year, month, day).getDay()];
-  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  const isDone = state.doneDays.includes(ds);
-  document.getElementById('day-modal-title').textContent = `${year}年 ${monthNames[month]}${day}日（${dow}）`;
-  document.getElementById('day-modal-date').textContent = isDone ? '✅ この日は全タスク完了！' : '';
+  const dow = DOW[new Date(year, month, day).getDay()];
+  document.getElementById('day-modal-title').textContent = `${year}年 ${MONTHS[month]}${day}日（${dow}）`;
+  document.getElementById('day-modal-date').textContent = state.doneDays.includes(ds) ? '✅ この日は全タスク完了！' : '';
   const content = document.getElementById('day-modal-content');
-  const projectsWithTasks = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
-  if (projectsWithTasks.length === 0) {
-    content.innerHTML = `<div class="day-empty">プロジェクトがまだありません</div>`;
-  } else {
+  const pw = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
+  if (!pw.length) { content.innerHTML = `<div class="day-empty">プロジェクトがまだありません</div>`; }
+  else {
     content.innerHTML = '';
-    projectsWithTasks.forEach(p => {
+    pw.forEach(p => {
       const tasks = state.tasks[p.id] || [];
-      const doneCount = tasks.filter(t => getCheck(p.id, t.id, ds)).length;
-      const allDone = doneCount === tasks.length;
-      const block = document.createElement('div');
-      block.className = 'day-project-block';
-      const badge = allDone
-        ? `<span class="day-project-badge done">完了</span>`
-        : `<span class="day-project-badge partial">${doneCount}/${tasks.length}</span>`;
-      let rows = tasks.map(t => {
-        const checked = getCheck(p.id, t.id, ds);
-        return `<div class="day-task-row">
-          <div class="day-check ${checked ? 'on' : 'off'}"></div>
-          <span style="color:${checked ? 'var(--text2)' : 'var(--text)'}; ${checked ? 'text-decoration:line-through' : ''}">${escHtml(t.text)}</span>
-        </div>`;
-      }).join('');
+      const dc = tasks.filter(t => getCheck(p.id, t.id, ds)).length;
+      const badge = dc === tasks.length ? `<span class="day-project-badge done">完了</span>` : `<span class="day-project-badge partial">${dc}/${tasks.length}</span>`;
+      const rows = tasks.map(t => { const c = getCheck(p.id, t.id, ds); return `<div class="day-task-row"><div class="day-check ${c?'on':'off'}"></div><span style="color:${c?'var(--text2)':'var(--text)'};${c?'text-decoration:line-through':''}">${escHtml(t.text)}</span></div>`; }).join('');
+      const block = document.createElement('div'); block.className = 'day-project-block';
       block.innerHTML = `<div class="day-project-name">${escHtml(p.name)} ${badge}</div>${rows}`;
       content.appendChild(block);
     });
   }
   document.getElementById('modal-day').classList.add('open');
 }
-document.getElementById('close-day-modal').addEventListener('click', () => {
-  document.getElementById('modal-day').classList.remove('open');
-});
-document.getElementById('modal-day').addEventListener('click', e => {
-  if (e.target === e.currentTarget) document.getElementById('modal-day').classList.remove('open');
-});
+document.getElementById('close-day-modal').addEventListener('click', () => document.getElementById('modal-day').classList.remove('open'));
+document.getElementById('modal-day').addEventListener('click', e => { if (e.target===e.currentTarget) document.getElementById('modal-day').classList.remove('open'); });
 
 function renderProjects() {
-  const list = document.getElementById('project-list');
   const d = new Date();
-  const weekdays = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
-  document.getElementById('today-label').textContent =
-    `${d.getMonth()+1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
-  if (state.projects.length === 0) {
+  const wdays = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+  document.getElementById('today-label').textContent = `${d.getMonth()+1}月${d.getDate()}日（${wdays[d.getDay()]}）`;
+  const list = document.getElementById('project-list');
+  if (!state.projects.length) {
     list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>プロジェクトがありません<br>＋ボタンで追加してください</div>`;
+    document.getElementById('sort-hint').textContent = '';
     return;
   }
+  document.getElementById('sort-hint').textContent = '長押しでドラッグして並び替え';
   list.innerHTML = '';
-  state.projects.forEach(p => {
+  state.projects.forEach((p, idx) => {
     const tasks = state.tasks[p.id] || [];
     const done = tasks.filter(t => getCheck(p.id, t.id)).length;
-    const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const pct = tasks.length ? Math.round(done/tasks.length*100) : 0;
     const card = document.createElement('div');
-    card.className = 'project-card';
+    card.className = 'project-card'; card.draggable = true; card.dataset.idx = idx;
     card.innerHTML = `
-      <div class="project-info">
+      <div class="project-info" style="cursor:pointer">
         <div class="project-name">${escHtml(p.name)}</div>
-        <div class="project-meta">${tasks.length === 0 ? 'タスクなし' : `${done} / ${tasks.length} 完了`}</div>
+        <div class="project-meta">${tasks.length===0?'タスクなし':`${done} / ${tasks.length} 完了`}</div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       </div>
-      <div class="project-chevron">›</div>`;
-    card.addEventListener('click', () => openProject(p.id));
+      <div class="project-actions">
+        <button class="project-action-btn delete" data-id="${p.id}" aria-label="削除">🗑</button>
+        <div class="project-chevron">›</div>
+      </div>`;
+    card.querySelector('.project-info').addEventListener('click', () => openProject(p.id));
+    card.querySelector('.project-action-btn.delete').addEventListener('click', e => { e.stopPropagation(); openConfirmDelete(p.id, p.name); });
+    card.addEventListener('dragstart', e => { dragSrcIdx = idx; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    card.addEventListener('dragend', () => { card.classList.remove('dragging'); document.querySelectorAll('.project-card').forEach(c => c.classList.remove('drag-over')); });
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over');
+      const toIdx = parseInt(card.dataset.idx);
+      if (dragSrcIdx !== null && dragSrcIdx !== toIdx) {
+        const moved = state.projects.splice(dragSrcIdx, 1)[0];
+        state.projects.splice(toIdx, 0, moved);
+        save(); renderProjects();
+      }
+    });
     list.appendChild(card);
   });
 }
+
+function openConfirmDelete(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('confirm-msg').textContent = `「${name}」を削除しますか？\nタスクとメモもすべて削除されます。`;
+  document.getElementById('modal-confirm').classList.add('open');
+}
+document.getElementById('cancel-confirm').addEventListener('click', () => { document.getElementById('modal-confirm').classList.remove('open'); pendingDeleteId = null; });
+document.getElementById('ok-confirm').addEventListener('click', () => {
+  if (!pendingDeleteId) return;
+  state.projects = state.projects.filter(p => p.id !== pendingDeleteId);
+  delete state.tasks[pendingDeleteId]; delete state.memos[pendingDeleteId];
+  Object.keys(state.checks).forEach(ds => { if (state.checks[ds][pendingDeleteId]) delete state.checks[ds][pendingDeleteId]; });
+  updateDoneDay(); save();
+  document.getElementById('modal-confirm').classList.remove('open'); pendingDeleteId = null;
+  renderProjects(); renderCalendar();
+});
 
 function renderTasks() {
   const p = state.projects.find(x => x.id === currentProjectId);
@@ -508,17 +433,11 @@ function renderTasks() {
   document.getElementById('project-screen-name').textContent = p.name;
   const tasks = state.tasks[currentProjectId] || [];
   const done = tasks.filter(t => getCheck(currentProjectId, t.id)).length;
-  document.getElementById('project-screen-meta').textContent =
-    tasks.length ? `${done} / ${tasks.length} 完了` : 'タスクなし';
-  const banner = document.getElementById('all-done-banner');
-  banner.classList.toggle('show', tasks.length > 0 && done === tasks.length);
-  const memoEl = document.getElementById('memo-textarea');
-  memoEl.value = state.memos[currentProjectId] || '';
+  document.getElementById('project-screen-meta').textContent = tasks.length ? `${done} / ${tasks.length} 完了` : 'タスクなし';
+  document.getElementById('all-done-banner').classList.toggle('show', tasks.length > 0 && done === tasks.length);
+  document.getElementById('memo-textarea').value = state.memos[currentProjectId] || '';
   const list = document.getElementById('task-list');
-  if (tasks.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>タスクがありません<br>＋ボタンで追加してください</div>`;
-    return;
-  }
+  if (!tasks.length) { list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>タスクがありません<br>＋ボタンで追加してください</div>`; return; }
   list.innerHTML = '';
   tasks.forEach(t => {
     const checked = getCheck(currentProjectId, t.id);
@@ -527,34 +446,80 @@ function renderTasks() {
     item.innerHTML = `
       <div class="task-check"></div>
       <div class="task-text">${escHtml(t.text)}</div>
-      <button class="task-delete" data-id="${t.id}" aria-label="削除">✕</button>`;
-    item.querySelector('.task-check').addEventListener('click', (e) => {
-      e.stopPropagation();
-      setCheck(currentProjectId, t.id, !checked);
-      renderTasks(); renderCalendar(); renderProjects();
-    });
-    item.querySelector('.task-text').addEventListener('click', () => {
-      setCheck(currentProjectId, t.id, !checked);
-      renderTasks(); renderCalendar(); renderProjects();
-    });
-    item.querySelector('.task-delete').addEventListener('click', (e) => {
-      e.stopPropagation();
-      deleteTask(t.id);
-    });
+      ${t.repeat ? '<span class="task-repeat-badge">🔁 毎日</span>' : ''}
+      <button class="task-delete" aria-label="削除">✕</button>`;
+    const toggle = () => { setCheck(currentProjectId, t.id, !checked); renderTasks(); renderCalendar(); renderProjects(); };
+    item.querySelector('.task-check').addEventListener('click', e => { e.stopPropagation(); toggle(); });
+    item.querySelector('.task-text').addEventListener('click', toggle);
+    item.querySelector('.task-delete').addEventListener('click', e => { e.stopPropagation(); state.tasks[currentProjectId] = tasks.filter(x => x.id !== t.id); updateDoneDay(); save(); renderTasks(); renderCalendar(); renderProjects(); });
     list.appendChild(item);
   });
 }
-
 document.getElementById('memo-textarea').addEventListener('input', () => {
   if (!currentProjectId) return;
-  state.memos[currentProjectId] = document.getElementById('memo-textarea').value;
-  save();
+  state.memos[currentProjectId] = document.getElementById('memo-textarea').value; save();
 });
 
-function deleteTask(taskId) {
-  state.tasks[currentProjectId] = (state.tasks[currentProjectId]||[]).filter(t => t.id !== taskId);
-  updateDoneDay(); save(); renderTasks(); renderCalendar(); renderProjects();
+function showStats() {
+  document.getElementById('screen-home').classList.remove('active');
+  document.getElementById('screen-stats').classList.add('active');
+  renderStats();
 }
+function renderStats() {
+  const isWeek = statsPeriod === 'week';
+  const today = new Date();
+  let days = [];
+  if (isWeek) {
+    for (let i = 6; i >= 0; i--) { const d = new Date(today); d.setDate(today.getDate()-i); days.push(d); }
+  } else {
+    const y = today.getFullYear(); const m = today.getMonth();
+    const dim = new Date(y, m+1, 0).getDate();
+    for (let d = 1; d <= dim; d++) days.push(new Date(y, m, d));
+  }
+  const dStrs = days.map(d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  const doneCnt = dStrs.filter(ds => state.doneDays.includes(ds)).length;
+  const pct = days.length ? Math.round(doneCnt/days.length*100) : 0;
+  const barData = dStrs.map(ds => {
+    const pw = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
+    if (!pw.length) return 0;
+    const total = pw.reduce((s,p) => s+(state.tasks[p.id]||[]).length, 0);
+    const done = pw.reduce((s,p) => s+(state.tasks[p.id]||[]).filter(t => getCheck(p.id,t.id,ds)).length, 0);
+    return total ? Math.round(done/total*100) : 0;
+  });
+  const maxVal = Math.max(...barData, 1);
+  const barLabels = isWeek ? days.map(d => DOW[d.getDay()]) : days.map(d => d.getDate()%5===0?String(d.getDate()):'');
+  const bars = barData.map((v, i) => {
+    const h = Math.max(2, Math.round(v/maxVal*72));
+    const isFull = state.doneDays.includes(dStrs[i]);
+    return `<div class="bar-col"><div class="bar-fill${isFull?' full':''}" style="height:${h}px"></div><div class="bar-label">${barLabels[i]}</div></div>`;
+  }).join('');
+  const projRows = state.projects.map(p => {
+    const tasks = state.tasks[p.id]||[];
+    if (!tasks.length) return '';
+    const dd = dStrs.filter(ds => isProjectAllDone(p.id, ds)).length;
+    return `<div class="stats-row"><span class="stats-row-label">${escHtml(p.name)}</span><span class="stats-row-val">${dd}日完了</span></div>`;
+  }).join('');
+  document.getElementById('stats-content').innerHTML = `
+    <div class="stats-card">
+      <div class="stats-card-title">${isWeek?'今週':'今月'}の達成率</div>
+      <div class="stats-number">${pct}%</div>
+      <div class="stats-number-label">${doneCnt} / ${days.length} 日 全タスク完了</div>
+      <div class="bar-chart">${bars}</div>
+    </div>
+    ${state.projects.length ? `<div class="stats-card"><div class="stats-card-title">プロジェクト別</div>${projRows}</div>` : ''}`;
+}
+document.getElementById('btn-stats').addEventListener('click', showStats);
+document.getElementById('stats-back-btn').addEventListener('click', () => {
+  document.getElementById('screen-stats').classList.remove('active');
+  document.getElementById('screen-home').classList.add('active');
+});
+document.querySelectorAll('.period-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    statsPeriod = btn.dataset.period;
+    document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); renderStats();
+  });
+});
 
 function openProject(id) {
   currentProjectId = id;
@@ -568,14 +533,8 @@ document.getElementById('back-btn').addEventListener('click', () => {
   renderProjects(); renderCalendar();
 });
 
-function openModal(id, inputId) {
-  document.getElementById(id).classList.add('open');
-  setTimeout(() => document.getElementById(inputId).focus(), 100);
-}
-function closeModal(id, inputId) {
-  document.getElementById(id).classList.remove('open');
-  document.getElementById(inputId).value = '';
-}
+function openModal(id, inputId) { document.getElementById(id).classList.add('open'); setTimeout(() => document.getElementById(inputId).focus(), 100); }
+function closeModal(id, inputId) { document.getElementById(id).classList.remove('open'); document.getElementById(inputId).value = ''; }
 
 document.getElementById('fab-add-project').addEventListener('click', () => openModal('modal-project','input-project'));
 document.getElementById('cancel-project').addEventListener('click', () => closeModal('modal-project','input-project'));
@@ -586,13 +545,19 @@ function addProject() {
   const name = document.getElementById('input-project').value.trim();
   if (!name) return;
   const p = { id: genId(), name };
-  state.projects.push(p);
-  if (!state.tasks[p.id]) state.tasks[p.id] = [];
+  state.projects.push(p); state.tasks[p.id] = [];
   save(); closeModal('modal-project','input-project');
   renderProjects(); renderCalendar();
 }
 
-document.getElementById('fab-add-task').addEventListener('click', () => openModal('modal-task','input-task'));
+document.getElementById('repeat-toggle').addEventListener('click', () => {
+  repeatToggleOn = !repeatToggleOn;
+  document.getElementById('repeat-toggle').classList.toggle('on', repeatToggleOn);
+});
+document.getElementById('fab-add-task').addEventListener('click', () => {
+  repeatToggleOn = false; document.getElementById('repeat-toggle').classList.remove('on');
+  openModal('modal-task','input-task');
+});
 document.getElementById('cancel-task').addEventListener('click', () => closeModal('modal-task','input-task'));
 document.getElementById('modal-task').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-task','input-task'); });
 document.getElementById('confirm-task').addEventListener('click', addTask);
@@ -601,29 +566,24 @@ function addTask() {
   const text = document.getElementById('input-task').value.trim();
   if (!text || !currentProjectId) return;
   if (!state.tasks[currentProjectId]) state.tasks[currentProjectId] = [];
-  state.tasks[currentProjectId].push({ id: genId(), text });
+  state.tasks[currentProjectId].push({ id: genId(), text, repeat: repeatToggleOn });
   save(); closeModal('modal-task','input-task');
   renderTasks(); renderCalendar(); renderProjects();
 }
 
 document.getElementById('cal-prev').addEventListener('click', () => {
-  state.calViewMonth--;
-  if (state.calViewMonth < 0) { state.calViewMonth = 11; state.calViewYear--; }
+  state.calViewMonth--; if (state.calViewMonth < 0) { state.calViewMonth = 11; state.calViewYear--; }
   save(); renderCalendar();
 });
 document.getElementById('cal-next').addEventListener('click', () => {
-  state.calViewMonth++;
-  if (state.calViewMonth > 11) { state.calViewMonth = 0; state.calViewYear++; }
+  state.calViewMonth++; if (state.calViewMonth > 11) { state.calViewMonth = 0; state.calViewYear++; }
   save(); renderCalendar();
 });
 
 load();
 renderCalendar();
 renderProjects();
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
