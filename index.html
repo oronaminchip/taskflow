@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TaskFlow">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>TaskFlow</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #16213e;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text2: #8892a4;
+    --text3: #5a6478;
+    --success: #4ecca3;
+    --border: rgba(255,255,255,0.08);
+    --radius: 16px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-size: 16px;
+  }
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ===== HEADER ===== */
+  .header {
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-title span { color: var(--accent); }
+  .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; color: var(--text2);
+    font-size: 15px; cursor: pointer; padding: 4px 0;
+    font-family: inherit;
+  }
+  .back-btn::before { content: '‹'; font-size: 22px; line-height: 1; color: var(--accent); }
+
+  /* ===== SCROLL CONTENT ===== */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ===== CALENDAR ===== */
+  .calendar-wrap {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .cal-month { font-size: 17px; font-weight: 600; }
+  .cal-nav { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+  .cal-dow {
+    text-align: center; font-size: 11px; color: var(--text3);
+    font-weight: 600; padding: 4px 0; letter-spacing: 0.5px;
+  }
+  .cal-day {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-size: 13px; font-weight: 500; cursor: default;
+    position: relative; color: var(--text2);
+  }
+  .cal-day.today {
+    background: var(--accent2); color: var(--text);
+    font-weight: 700;
+  }
+  .cal-day.done { background: var(--success); color: #0a2e22; font-weight: 700; }
+  .cal-day.other-month { color: var(--text3); opacity: 0.4; }
+
+  /* ===== PROJECT LIST ===== */
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 10px; padding: 0 4px;
+  }
+  .project-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.15s, transform 0.1s;
+    user-select: none;
+  }
+  .project-card:active { background: var(--surface2); transform: scale(0.98); }
+  .project-info { flex: 1; min-width: 0; }
+  .project-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .project-meta { font-size: 12px; color: var(--text2); }
+  .project-chevron { color: var(--text3); font-size: 20px; margin-left: 8px; flex-shrink: 0; }
+  .progress-bar {
+    height: 3px; background: var(--border);
+    border-radius: 2px; margin-top: 8px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: var(--success); border-radius: 2px; transition: width 0.3s; }
+
+  /* ===== TASK LIST ===== */
+  .task-item {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    user-select: none;
+  }
+  .task-item:active { transform: scale(0.98); }
+  .task-item.checked { opacity: 0.6; }
+  .task-check {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--text3);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .task-item.checked .task-check {
+    background: var(--success); border-color: var(--success);
+  }
+  .task-item.checked .task-check::after {
+    content: '';
+    width: 6px; height: 10px;
+    border: 2px solid #0a2e22;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .task-text { font-size: 15px; line-height: 1.4; flex: 1; }
+  .task-item.checked .task-text { text-decoration: line-through; color: var(--text2); }
+  .task-delete {
+    background: none; border: none; color: var(--text3);
+    font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0;
+    font-family: inherit; line-height: 1;
+  }
+
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed; bottom: calc(24px + var(--safe-bottom));
+    right: 24px;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--accent);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 24px rgba(233,69,96,0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 100;
+  }
+  .fab:active { transform: scale(0.92); box-shadow: 0 2px 12px rgba(233,69,96,0.3); }
+  .fab-icon { font-size: 32px; line-height: 1; color: #fff; margin-top: -2px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 200;
+    align-items: flex-end; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom));
+    width: 100%; max-width: 500px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle {
+    width: 36px; height: 4px; background: var(--text3);
+    border-radius: 2px; margin: 0 auto 16px;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .modal input {
+    width: 100%; padding: 14px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-size: 16px; font-family: inherit;
+    outline: none; margin-bottom: 14px;
+  }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-cancel {
+    flex: 1; padding: 14px; border-radius: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-add {
+    flex: 1; padding: 14px; border-radius: 12px;
+    background: var(--accent); border: none;
+    color: #fff; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty {
+    text-align: center; padding: 40px 20px;
+    color: var(--text3); font-size: 14px; line-height: 1.8;
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ===== PROJECT HEADER ===== */
+  .project-header-wrap {
+    padding: 0 20px 16px;
+    flex-shrink: 0;
+  }
+  .project-header-name {
+    font-size: 24px; font-weight: 700; margin-bottom: 4px;
+  }
+  .all-done-banner {
+    background: linear-gradient(135deg, #4ecca3, #38b28e);
+    border-radius: 12px; padding: 12px 16px;
+    text-align: center; font-size: 14px; font-weight: 700;
+    color: #0a2e22; margin-bottom: 16px; display: none;
+  }
+  .all-done-banner.show { display: block; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div>
+        <div class="header-title">Task<span>Flow</span></div>
+        <div class="header-sub" id="today-label"></div>
+      </div>
+    </div>
+    <div class="scroll-content">
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" id="cal-prev">‹</button>
+          <div class="cal-month" id="cal-month-label"></div>
+          <button class="cal-nav" id="cal-next">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="section-title">プロジェクト</div>
+      <div id="project-list"></div>
+    </div>
+    <button class="fab" id="fab-add-project" aria-label="プロジェクトを追加">
+      <span class="fab-icon">+</span>
+    </button>
+  </div>
+
+  <!-- PROJECT SCREEN -->
+  <div class="screen" id="screen-project">
+    <div class="header">
+      <button class="back-btn" id="back-btn">プロジェクト</button>
+    </div>
+    <div class="project-header-wrap">
+      <div class="project-header-name" id="project-screen-name"></div>
+      <div class="header-sub" id="project-screen-meta"></div>
+    </div>
+    <div class="all-done-banner" id="all-done-banner">🎉 本日のタスクをすべて完了！</div>
+    <div class="scroll-content">
+      <div id="task-list"></div>
+    </div>
+    <button class="fab" id="fab-add-task" aria-label="タスクを追加">
+      <span class="fab-icon">+</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- ADD PROJECT MODAL -->
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">新しいプロジェクト</div>
+    <input type="text" id="input-project" placeholder="プロジェクト名を入力" maxlength="40">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancel-project">キャンセル</button>
+      <button class="btn-add" id="confirm-project">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">新しいタスク</div>
+    <input type="text" id="input-task" placeholder="タスク名を入力" maxlength="80">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancel-task">キャンセル</button>
+      <button class="btn-add" id="confirm-task">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let state = {
+  projects: [],      // [{id, name}]
+  tasks: {},         // {projectId: [{id, text}]}
+  checks: {},        // {"YYYY-MM-DD": {projectId: {taskId: bool}}}
+  doneDays: [],      // ["YYYY-MM-DD"] all tasks done
+  calViewYear: 0,
+  calViewMonth: 0,
+};
+let currentProjectId = null;
+
+// ===== UTILS =====
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function genId() { return Math.random().toString(36).slice(2,10); }
+
+// ===== STORAGE =====
+function save() { localStorage.setItem('taskflow_v2', JSON.stringify(state)); }
+function load() {
+  const raw = localStorage.getItem('taskflow_v2');
+  if (raw) {
+    try { Object.assign(state, JSON.parse(raw)); } catch(e) {}
+  }
+  if (!state.calViewYear) {
+    const d = new Date();
+    state.calViewYear = d.getFullYear();
+    state.calViewMonth = d.getMonth();
+  }
+  // Ensure arrays/objects
+  if (!Array.isArray(state.projects)) state.projects = [];
+  if (!state.tasks) state.tasks = {};
+  if (!state.checks) state.checks = {};
+  if (!Array.isArray(state.doneDays)) state.doneDays = [];
+}
+
+// ===== CHECK LOGIC =====
+function getCheck(projectId, taskId) {
+  const today = todayStr();
+  return state.checks[today]?.[projectId]?.[taskId] ?? false;
+}
+function setCheck(projectId, taskId, val) {
+  const today = todayStr();
+  if (!state.checks[today]) state.checks[today] = {};
+  if (!state.checks[today][projectId]) state.checks[today][projectId] = {};
+  state.checks[today][projectId][taskId] = val;
+  updateDoneDay();
+  save();
+}
+function isProjectAllDone(projectId) {
+  const tasks = state.tasks[projectId] || [];
+  if (tasks.length === 0) return false;
+  return tasks.every(t => getCheck(projectId, t.id));
+}
+function updateDoneDay() {
+  const today = todayStr();
+  // A day is "done" if at least one project exists and ALL projects with tasks are done
+  const projectsWithTasks = state.projects.filter(p => (state.tasks[p.id]||[]).length > 0);
+  if (projectsWithTasks.length > 0 && projectsWithTasks.every(p => isProjectAllDone(p.id))) {
+    if (!state.doneDays.includes(today)) state.doneDays.push(today);
+  } else {
+    state.doneDays = state.doneDays.filter(d => d !== today);
+  }
+}
+
+// ===== CALENDAR =====
+const DOW = ['日','月','火','水','木','金','土'];
+function renderCalendar() {
+  const { calViewYear: y, calViewMonth: m } = state;
+  const today = new Date(); const todayS = todayStr();
+  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  document.getElementById('cal-month-label').textContent = `${y}年 ${monthNames[m]}`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el);
+  });
+  const first = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const prevDays = new Date(y, m, 0).getDate();
+  // prev month
+  for (let i = first - 1; i >= 0; i--) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month'; el.textContent = prevDays - i; grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    el.className = 'cal-day';
+    el.textContent = d;
+    if (ds === todayS) el.classList.add('today');
+    if (state.doneDays.includes(ds)) { el.classList.add('done'); el.classList.remove('today'); }
+    grid.appendChild(el);
+  }
+  // next month fill
+  const total = first + daysInMonth;
+  const rem = (7 - total % 7) % 7;
+  for (let d = 1; d <= rem; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month'; el.textContent = d; grid.appendChild(el);
+  }
+}
+
+// ===== PROJECT LIST =====
+function renderProjects() {
+  const list = document.getElementById('project-list');
+  const today = todayStr();
+  const d = new Date();
+  const weekdays = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+  document.getElementById('today-label').textContent =
+    `${d.getMonth()+1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
+
+  if (state.projects.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>プロジェクトがありません<br>＋ボタンで追加してください</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  state.projects.forEach(p => {
+    const tasks = state.tasks[p.id] || [];
+    const done = tasks.filter(t => getCheck(p.id, t.id)).length;
+    const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    card.innerHTML = `
+      <div class="project-info">
+        <div class="project-name">${escHtml(p.name)}</div>
+        <div class="project-meta">${tasks.length === 0 ? 'タスクなし' : `${done} / ${tasks.length} 完了`}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="project-chevron">›</div>`;
+    card.addEventListener('click', () => openProject(p.id));
+    list.appendChild(card);
+  });
+}
+
+// ===== TASK LIST =====
+function renderTasks() {
+  const p = state.projects.find(x => x.id === currentProjectId);
+  if (!p) return;
+  document.getElementById('project-screen-name').textContent = p.name;
+  const tasks = state.tasks[currentProjectId] || [];
+  const done = tasks.filter(t => getCheck(currentProjectId, t.id)).length;
+  document.getElementById('project-screen-meta').textContent =
+    tasks.length ? `${done} / ${tasks.length} 完了` : 'タスクなし';
+
+  const banner = document.getElementById('all-done-banner');
+  banner.classList.toggle('show', tasks.length > 0 && done === tasks.length);
+
+  const list = document.getElementById('task-list');
+  if (tasks.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div>タスクがありません<br>＋ボタンで追加してください</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  tasks.forEach(t => {
+    const checked = getCheck(currentProjectId, t.id);
+    const item = document.createElement('div');
+    item.className = 'task-item' + (checked ? ' checked' : '');
+    item.innerHTML = `
+      <div class="task-check"></div>
+      <div class="task-text">${escHtml(t.text)}</div>
+      <button class="task-delete" data-id="${t.id}" aria-label="削除">✕</button>`;
+    item.querySelector('.task-check').addEventListener('click', (e) => {
+      e.stopPropagation();
+      setCheck(currentProjectId, t.id, !checked);
+      renderTasks(); renderCalendar(); renderProjects();
+    });
+    item.querySelector('.task-text').addEventListener('click', () => {
+      setCheck(currentProjectId, t.id, !checked);
+      renderTasks(); renderCalendar(); renderProjects();
+    });
+    item.querySelector('.task-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteTask(t.id);
+    });
+    list.appendChild(item);
+  });
+}
+
+function deleteTask(taskId) {
+  state.tasks[currentProjectId] = (state.tasks[currentProjectId]||[]).filter(t => t.id !== taskId);
+  updateDoneDay(); save(); renderTasks(); renderCalendar(); renderProjects();
+}
+
+// ===== NAVIGATION =====
+function openProject(id) {
+  currentProjectId = id;
+  document.getElementById('screen-home').classList.remove('active');
+  document.getElementById('screen-project').classList.add('active');
+  renderTasks();
+}
+document.getElementById('back-btn').addEventListener('click', () => {
+  document.getElementById('screen-project').classList.remove('active');
+  document.getElementById('screen-home').classList.add('active');
+  renderProjects(); renderCalendar();
+});
+
+// ===== MODAL HELPERS =====
+function openModal(id, inputId) {
+  document.getElementById(id).classList.add('open');
+  setTimeout(() => document.getElementById(inputId).focus(), 100);
+}
+function closeModal(id, inputId) {
+  document.getElementById(id).classList.remove('open');
+  document.getElementById(inputId).value = '';
+}
+
+// ===== ADD PROJECT =====
+document.getElementById('fab-add-project').addEventListener('click', () => openModal('modal-project','input-project'));
+document.getElementById('cancel-project').addEventListener('click', () => closeModal('modal-project','input-project'));
+document.getElementById('modal-project').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-project','input-project'); });
+document.getElementById('confirm-project').addEventListener('click', addProject);
+document.getElementById('input-project').addEventListener('keydown', e => { if(e.key==='Enter') addProject(); });
+function addProject() {
+  const name = document.getElementById('input-project').value.trim();
+  if (!name) return;
+  const p = { id: genId(), name };
+  state.projects.push(p);
+  if (!state.tasks[p.id]) state.tasks[p.id] = [];
+  save(); closeModal('modal-project','input-project');
+  renderProjects(); renderCalendar();
+}
+
+// ===== ADD TASK =====
+document.getElementById('fab-add-task').addEventListener('click', () => openModal('modal-task','input-task'));
+document.getElementById('cancel-task').addEventListener('click', () => closeModal('modal-task','input-task'));
+document.getElementById('modal-task').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('modal-task','input-task'); });
+document.getElementById('confirm-task').addEventListener('click', addTask);
+document.getElementById('input-task').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+function addTask() {
+  const text = document.getElementById('input-task').value.trim();
+  if (!text || !currentProjectId) return;
+  if (!state.tasks[currentProjectId]) state.tasks[currentProjectId] = [];
+  state.tasks[currentProjectId].push({ id: genId(), text });
+  save(); closeModal('modal-task','input-task');
+  renderTasks(); renderCalendar(); renderProjects();
+}
+
+// ===== CALENDAR NAV =====
+document.getElementById('cal-prev').addEventListener('click', () => {
+  state.calViewMonth--;
+  if (state.calViewMonth < 0) { state.calViewMonth = 11; state.calViewYear--; }
+  save(); renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  state.calViewMonth++;
+  if (state.calViewMonth > 11) { state.calViewMonth = 0; state.calViewYear++; }
+  save(); renderCalendar();
+});
+
+// ===== ESCAPE =====
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== INIT =====
+load();
+renderCalendar();
+renderProjects();
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
